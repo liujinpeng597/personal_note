@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% from 'partials/note_card.html' import note_card %}
+{% from 'partials/empty.html' import empty %}
+{% block title %}我的笔记 · 个人笔记{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/notes.css') }}">{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-head">
+    <h1>我的笔记</h1>
+    <a class="btn btn-primary" href="{{ url_for('notes.editor_new') }}">写笔记</a>
+  </div>
+
+  <nav class="tabs" aria-label="笔记筛选">
+    {% for key, label in tabs %}
+    <a class="tab" href="{{ url_for('notes.list', tab=key, q=q or None, tag=tag or None) }}"
+       {% if tab == key %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  <form class="filter-row" method="get" action="{{ url_for('notes.list') }}" role="search">
+    <input type="hidden" name="tab" value="{{ tab }}">
+    {% if tag %}<input type="hidden" name="tag" value="{{ tag }}">{% endif %}
+    <label class="sr-only" for="q">搜索笔记</label>
+    <input id="q" name="q" type="search" value="{{ q }}" placeholder="搜索标题、正文或标签">
+    <button class="btn" type="submit">搜索</button>
+    {% if tag %}
+    <a class="chip" href="{{ url_for('notes.list', tab=tab, q=q or None) }}">标签：{{ tag }} ×</a>
+    {% endif %}
+  </form>
+
+  {% if notes %}
+  <div class="note-grid">
+    {% for note in notes %}{{ note_card(note) }}{% endfor %}
+  </div>
+
+  {% if pagination.pages > 1 %}
+  <nav class="pagination" aria-label="分页">
+    {% if pagination.has_prev %}
+    <a class="btn btn-sm" href="{{ url_for('notes.list', tab=tab, q=q or None, tag=tag or None, page=pagination.prev_num) }}">上一页</a>
+    {% endif %}
+    <span class="text-meta">第 {{ pagination.page }} / {{ pagination.pages }} 页</span>
+    {% if pagination.has_next %}
+    <a class="btn btn-sm" href="{{ url_for('notes.list', tab=tab, q=q or None, tag=tag or None, page=pagination.next_num) }}">下一页</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+  {% else %}
+    {% if q %}
+      {{ empty('没有找到包含「' ~ q ~ '」的笔记。') }}
+    {% elif tag %}
+      {{ empty('标签「' ~ tag ~ '」下还没有笔记。') }}
+    {% elif tab == 'draft' %}
+      {{ empty('草稿箱是空的。', '写第一篇笔记', url_for('notes.editor_new')) }}
+    {% elif tab == 'published' %}
+      {{ empty('还没有发布的笔记。发布后它会出现在这里。', '写第一篇笔记', url_for('notes.editor_new')) }}
+    {% else %}
+      {{ empty('还没有笔记。写下第一行，它会留在这里。', '写第一篇笔记', url_for('notes.editor_new')) }}
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/dialog.js') }}"></script>{% endblock %}

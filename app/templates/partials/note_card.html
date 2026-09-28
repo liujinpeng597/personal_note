@@ -1,0 +1,25 @@
+{% macro note_card(note, link_tags=True) %}
+<article class="note-card">
+  <h2 class="note-card__title">
+    <a href="{{ url_for('notes.detail', note_id=note.id) }}">{{ note.title }}</a>
+  </h2>
+  <p class="note-card__excerpt">{{ note.excerpt or '（这篇笔记还没有正文）' }}</p>
+  {% if note.tags %}
+  <div class="note-card__tags">
+    {% for tag in note.tags %}
+      {% if link_tags %}
+      <a class="chip" href="{{ url_for('notes.list', tag=tag.name) }}">{{ tag.name }}</a>
+      {% else %}
+      <span class="chip">{{ tag.name }}</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="note-card__meta">
+    <span class="badge {{ 'badge--published' if note.is_published else 'badge--draft' }}">
+      {{ '已发布' if note.is_published else '草稿' }}
+    </span>
+    <span>更新于 {{ note.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+  </div>
+</article>
+{% endmacro %}

@@ -1,0 +1,40 @@
+{% macro comments_section(note, comments, can_comment=True) %}
+<section class="comments" aria-label="评论">
+  <h2>评论 <span class="text-meta">{{ comments|length }}</span></h2>
+
+  <div id="comment-list">
+    {% for comment in comments %}
+    <div class="comment" data-comment-id="{{ comment.id }}">
+      <div class="comment__head">
+        <strong>{{ comment.author.username }}</strong>
+        <span>{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        {% if current_user and current_user.id == comment.user_id %}
+        <button class="btn btn-sm btn-danger" type="button" data-comment-delete="{{ comment.id }}">删除</button>
+        {% endif %}
+      </div>
+      <p class="comment__body">{{ comment.content }}</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <p class="empty__text" id="comment-empty" {% if comments %}hidden{% endif %}>还没有评论，来说点什么。</p>
+
+  {% if can_comment %}
+    {% if current_user %}
+    <form id="comment-form" data-note-id="{{ note.id }}">
+      <div class="field">
+        <label for="comment-content">写下你的评论</label>
+        <textarea id="comment-content" name="content" rows="3" maxlength="500"
+                  placeholder="友善地说点什么…"></textarea>
+        <p class="field-error" id="content-error" hidden></p>
+      </div>
+      <button class="btn btn-primary" type="submit">发表评论</button>
+    </form>
+    {% else %}
+    <p class="text-meta">
+      登录后可以评论。<a href="{{ url_for('auth.login_page', next=request.path) }}">去登录</a>
+    </p>
+    {% endif %}
+  {% endif %}
+</section>
+{% endmacro %}

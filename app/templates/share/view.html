@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% from 'partials/comments.html' import comments_section with context %}
+{% block title %}{{ note.title }} · 分享 · 个人笔记{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/share.css') }}">{% endblock %}
+
+{% block content %}
+<p class="guest-banner">这是他人分享给你的笔记，你正在以访客身份阅读。</p>
+
+<article class="paper">
+  <h1 class="paper__title">{{ note.title }}</h1>
+  <p class="text-meta paper__meta">作者：{{ note.author.username }}</p>
+  <div class="prose">
+    {% if note.content_md.strip() %}
+      {{ note.content_md | render_md | safe }}
+    {% else %}
+      <p class="text-meta">（这篇笔记还没有正文）</p>
+    {% endif %}
+  </div>
+</article>
+
+{% if current_user %}
+<div class="note-actions">
+  <div class="note-actions__row">
+    <button class="favorite-btn" type="button" data-note-id="{{ note.id }}"
+            data-favorited="{{ 'true' if favorited else 'false' }}"
+            aria-pressed="{{ 'true' if favorited else 'false' }}"
+            aria-label="{{ '取消收藏' if favorited else '收藏这篇笔记' }}">
+      <svg class="favorite-btn__icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 20s-7-4.4-7-9.2A4 4 0 0112 8a4 4 0 017 2.8C19 15.6 12 20 12 20z"/>
+      </svg>
+      <span class="favorite-btn__count">{{ favorite_count }}</span>
+    </button>
+  </div>
+</div>
+{% endif %}
+
+{{ comments_section(note, comments, True) }}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dialog.js') }}"></script>
+<script src="{{ url_for('static', filename='js/notes.js') }}"></script>
+{% endblock %}

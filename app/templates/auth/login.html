@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from 'partials/field.html' import field %}
+{% block title %}登录 · 个人笔记{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="card auth-card">
+    <h1>登录</h1>
+    <p class="text-meta">回到你的笔记。</p>
+    <form data-auth-form method="post" action="{{ url_for('auth.login') }}"
+          data-loading-text="登录中…" data-success-url="{{ url_for('main.home') }}"
+          data-next="{{ next }}">
+      <input type="hidden" name="next" value="{{ next }}">
+      {{ field('email', '邮箱', type='email', autocomplete='email') }}
+      {{ field('password', '密码', type='password', autocomplete='current-password') }}
+      <button class="btn btn-primary auth-card__submit" type="submit">登录</button>
+    </form>
+    <p class="auth-card__switch">还没有账号？<a href="{{ url_for('auth.register_page') }}">去注册</a></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/auth.js') }}"></script>{% endblock %}

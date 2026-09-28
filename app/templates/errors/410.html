@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}分享已失效 · 个人笔记{% endblock %}
+{% block content %}
+<div class="container container--narrow">
+  <h1>该分享链接已失效或已被作者取消</h1>
+  <p class="text-meta">作者取消了这次分享，或者链接已经过期。</p>
+  <p><a class="btn btn-primary" href="{{ url_for('main.home') }}">回到主页</a></p>
+</div>
+{% endblock %}

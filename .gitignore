@@ -1,0 +1,48 @@
+# ============================================================
+# 个人笔记 .gitignore
+# 说明：带注释的行只写在单独一行，git 不支持行尾内联注释
+# ============================================================
+
+# ---- 运行时数据与私密文件（绝不提交）----
+# instance/ 里是 SQLite 数据库和自动生成的会话密钥（SECRET_KEY），泄漏密钥等于任何人可伪造登录会话
+instance/
+# 用户上传的图片，属于运行时产物
+app/static/uploads/
+
+# ---- Python 环境与缓存 ----
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# ---- 本地配置与密钥 ----
+.env
+.env.*
+!.env.example
+
+# ---- 数据库文件（防止手滑把库放到别处）----
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# ---- 编辑器与操作系统杂项 ----
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 日志与临时产物 ----
+*.log
+pytest-out*.txt
+temp/
+tmp/

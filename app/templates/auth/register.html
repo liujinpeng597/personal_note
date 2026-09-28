@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from 'partials/field.html' import field %}
+{% block title %}注册 · 个人笔记{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="card auth-card">
+    <h1>注册</h1>
+    <p class="text-meta">一个邮箱、一个用户名，就能开始记录。</p>
+    <form data-auth-form method="post" action="{{ url_for('auth.register') }}"
+          data-loading-text="注册中…" data-success-url="{{ url_for('main.home') }}">
+      {{ field('email', '邮箱', type='email', autocomplete='email') }}
+      {{ field('username', '用户名', autocomplete='username', hint='3–20 个中英文、数字或下划线') }}
+      {{ field('password', '密码', type='password', autocomplete='new-password', hint='至少 8 位，需同时包含字母和数字') }}
+      {{ field('password_confirm', '确认密码', type='password', autocomplete='new-password') }}
+      <button class="btn btn-primary auth-card__submit" type="submit">注册</button>
+    </form>
+    <p class="auth-card__switch">已有账号？<a href="{{ url_for('auth.login_page') }}">去登录</a></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/auth.js') }}"></script>{% endblock %}

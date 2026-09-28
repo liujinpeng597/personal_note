@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% from 'partials/comments.html' import comments_section with context %}
+{% block title %}{{ note.title }} · 个人笔记{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/notes.css') }}">{% endblock %}
+
+{% block content %}
+<article class="paper">
+  <h1 class="paper__title">{{ note.title }}</h1>
+  <p class="text-meta paper__meta">
+    <span class="badge {{ 'badge--published' if note.is_published else 'badge--draft' }}">
+      {{ '已发布' if note.is_published else '草稿' }}
+    </span>
+    <span>更新于 {{ note.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+  </p>
+
+  <div class="prose">
+    {% if note.content_md.strip() %}
+      {{ note.content_md | render_md | safe }}
+    {% else %}
+      <p class="text-meta">（这篇笔记还没有正文）</p>
+    {% endif %}
+  </div>
+</article>
+
+<div class="note-actions">
+  {% if note.tags %}
+  <div class="note-card__tags">
+    {% for tag in note.tags %}
+    <a class="chip" href="{{ url_for('notes.list', tag=tag.name) }}">{{ tag.name }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="note-actions__row">
+    <button class="favorite-btn" type="button" data-note-id="{{ note.id }}"
+            data-favorited="{{ 'true' if favorited else 'false' }}"
+            aria-pressed="{{ 'true' if favorited else 'false' }}"
+            aria-label="{{ '取消收藏' if favorited else '收藏这篇笔记' }}">
+      <svg class="favorite-btn__icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 20s-7-4.4-7-9.2A4 4 0 0112 8a4 4 0 017 2.8C19 15.6 12 20 12 20z"/>
+      </svg>
+      <span class="favorite-btn__count">{{ favorite_count }}</span>
+    </button>
+
+    <a class="btn" href="{{ url_for('notes.editor_edit', note_id=note.id) }}">编辑</a>
+    {% if note.is_published %}
+    <button class="btn" type="button" id="share-open"
+            data-note-id="{{ note.id }}"
+            data-share-url="{{ url_for('share.view', token=share.token, _external=True) if share and share.is_active else '' }}"
+            data-has-password="{{ 'true' if share and share.is_active and share.password_hash else 'false' }}">分享</button>
+    {% endif %}
+    <button class="btn btn-danger" type="button" data-note-delete="{{ note.id }}"
+            data-note-title="{{ note.title }}">删除</button>
+  </div>
+</div>
+
+{{ comments_section(note, comments, can_comment) }}
+
+<div class="dialog" id="share-dialog" hidden>
+  <div class="dialog__panel" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
+    <h2 id="share-dialog-title">分享这篇笔记</h2>
+    <p class="text-meta" id="share-status"></p>
+
+    <div id="share-form" hidden>
+      <div class="field">
+        <label for="share-password">密码（可选）</label>
+        <input id="share-password" type="text" placeholder="留空则拿到链接的人都能看">
+        <p class="field-error" id="password-error" hidden></p>
+      </div>
+      <button class="btn btn-primary" type="button" id="share-generate">生成链接</button>
+    </div>
+
+    <div id="share-result" hidden>
+      <div class="field">
+        <label for="share-url">分享链接</label>
+        <input id="share-url" type="text" readonly>
+      </div>
+      <div class="note-actions__row">
+        <button class="btn" type="button" id="share-copy">复制</button>
+        <button class="btn btn-danger" type="button" id="share-revoke">取消分享</button>
+      </div>
+    </div>
+
+    <div class="dialog__actions">
+      <button class="btn" type="button" data-dialog-close data-autofocus>关闭</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dialog.js') }}"></script>
+<script src="{{ url_for('static', filename='js/notes.js') }}"></script>
+<script src="{{ url_for('static', filename='js/share.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% from 'partials/note_card.html' import note_card %}
+{% from 'partials/empty.html' import empty %}
+{% block title %}{{ user.username }} · 个人笔记{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/user.css') }}">{% endblock %}
+
+{% block content %}
+<div class="container">
+  <section class="profile-card card">
+    {% if user.avatar_url %}
+    <img class="avatar avatar--lg" src="{{ user.avatar_url }}" alt="{{ user.username }} 的头像">
+    {% else %}
+    <span class="avatar avatar--lg avatar--letter">{{ user.username[0]|upper }}</span>
+    {% endif %}
+    <div>
+      <h1>{{ user.username }}</h1>
+      {% if user.bio %}<p class="profile-card__bio">{{ user.bio }}</p>{% endif %}
+      <p class="text-meta">加入于 {{ user.created_at.strftime('%Y-%m-%d') }} · {{ note_count }} 篇笔记 · {{ favorite_count }} 个收藏</p>
+    </div>
+  </section>
+
+  <nav class="tabs" aria-label="个人主页分区">
+    <a class="tab" href="{{ url_for('user.profile', username=user.username, tab='notes') }}"
+       {% if tab == 'notes' %}aria-current="page"{% endif %}>笔记</a>
+    <a class="tab" href="{{ url_for('user.profile', username=user.username, tab='favorites') }}"
+       {% if tab == 'favorites' %}aria-current="page"{% endif %}>收藏</a>
+  </nav>
+
+  {% if tab == 'favorites' %}
+    {% if favorites %}
+    <div class="note-grid">{% for note in favorites %}{{ note_card(note, link_tags=False) }}{% endfor %}</div>
+    {% else %}
+      {% if is_self %}
+        {{ empty('你还没有收藏任何笔记。看到喜欢的，点一下那颗心。') }}
+      {% else %}
+        {{ empty(user.username ~ ' 还没有收藏任何笔记。') }}
+      {% endif %}
+    {% endif %}
+  {% else %}
+    {% if notes %}
+    <div class="note-grid">{% for note in notes %}{{ note_card(note, link_tags=False) }}{% endfor %}</div>
+    {% else %}
+      {% if is_self %}
+        {{ empty('你还没有发布任何笔记。', '写第一篇笔记', url_for('notes.editor_new')) }}
+      {% else %}
+        {{ empty(user.username ~ ' 还没有发布任何笔记。') }}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

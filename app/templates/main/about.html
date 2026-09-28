@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}关于 · 个人笔记{% endblock %}
+
+{% block content %}
+<div class="container container--narrow">
+  <h1>关于个人笔记</h1>
+  <p>个人笔记是一个安静的个人写作角落：写下想法、存成草稿、需要时发布，并且只把某一条链接分享给想给的人。</p>
+
+  <h2>它能做什么</h2>
+  <ul>
+    <li>注册与登录，笔记默认只属于你自己；</li>
+    <li>Markdown 写作，左侧书写、右侧实时预览；</li>
+    <li>草稿与发布两态，草稿不会出现在任何公开位置；</li>
+    <li>分享链接可加密码、可随时取消，取消后链接立即失效；</li>
+    <li>收藏、标签、搜索与评论。</li>
+  </ul>
+
+  <h2>技术栈</h2>
+  <ul>
+    <li>后端：Python 3.12 + Flask，服务端渲染页面并就近提供 JSON 接口；</li>
+    <li>数据库：SQLite（单文件 <code>instance/notes.db</code>）；</li>
+    <li>前端：原生 HTML / CSS / JavaScript，不使用任何前端框架、CDN 或外部字体；</li>
+    <li>Markdown：Python-Markdown 渲染后经 nh3 白名单消毒。</li>
+  </ul>
+
+  <h2>两条硬性规范</h2>
+  <ol>
+    <li>后端统一返回 <code>{ "code": "...", "message": "中文提示" }</code>，前端一律展示 message 里的中文提示。</li>
+    <li>依赖使用国内镜像安装，并在 <code>requirements.txt</code> 中锁定版本。</li>
+  </ol>
+
+  <h2>隐私</h2>
+  <p>密码只保存哈希值；分享链接使用不可枚举的随机 token；上传只接受常见图片格式且限制在 2 MB 以内。</p>
+</div>
+{% endblock %}

@@ -1,0 +1,4 @@
+.guest-banner {
+  margin: 0; padding: 10px var(--space-4); text-align: center;
+  background: var(--leaf-soft); color: #55632F; font-size: var(--fs-meta);
+}

@@ -1,0 +1,34 @@
+/* 主页：Hero 摄影图 + 左侧文案 + 四功能简介 */
+.hero { position: relative; height: min(88vh, 720px); overflow: hidden; background: var(--shell); }
+.hero__photo { width: 100%; height: 100%; object-fit: cover; object-position: right center; display: block; }
+.hero__copy {
+  position: absolute; top: 0; bottom: 0; left: 0; z-index: 1; display: flex; flex-direction: column;
+  justify-content: center; gap: var(--space-3); max-width: min(520px, 100%); padding: 0 64px;
+}
+.hero h1 { font-size: var(--fs-hero); margin: 0; }
+.hero__sub { color: var(--ink); margin: 0; max-width: 30em; }
+.hero__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.features { max-width: 1080px; margin: 0 auto; padding: 64px var(--space-4); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.feature { display: flex; gap: var(--space-3); align-items: flex-start; }
+.feature__icon { width: 28px; height: 28px; flex: 0 0 28px; stroke: var(--leaf); fill: none; stroke-width: 1.5; }
+.feature__title { font-family: var(--font-title); font-size: 18px; margin: 0 0 4px; }
+.feature__text { color: var(--ink-soft); margin: 0; }
+
+@media (max-width: 1023px) {
+  .hero { height: 70vh; }
+  .hero__copy { max-width: min(480px, 100%); padding: 0 40px; }
+  .hero h1 { font-size: 32px; }
+}
+
+@media (max-width: 767px) {
+  .hero { height: 62vh; }
+  .hero__photo { object-position: 68% center; }
+  .hero::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(245, 241, 234, .92), rgba(245, 241, 234, .72));
+  }
+  .hero__copy { padding: 0 var(--space-4); }
+  .hero h1 { font-size: 28px; }
+  .features { grid-template-columns: 1fr; padding: var(--space-5) var(--space-4); }
+}

@@ -1,0 +1,11 @@
+.profile-card { display: flex; gap: var(--space-4); align-items: center; margin-bottom: var(--space-4); }
+.profile-card h1 { margin: 0 0 4px; }
+.profile-card__bio { margin: 0 0 4px; }
+.avatar--lg { width: 64px; height: 64px; font-size: 28px; }
+
+.settings-card { margin-bottom: var(--space-4); }
+.settings-card h2 { margin-top: 0; }
+
+@media (max-width: 767px) {
+  .profile-card { flex-direction: column; align-items: flex-start; }
+}

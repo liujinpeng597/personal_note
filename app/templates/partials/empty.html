@@ -1,0 +1,8 @@
+{% macro empty(text, action_text=None, action_href=None, action_attrs='') %}
+<div class="empty">
+  <p class="empty__text">{{ text }}</p>
+  {% if action_text and action_href %}
+  <a class="btn btn-primary" href="{{ action_href }}" {{ action_attrs|safe }}>{{ action_text }}</a>
+  {% endif %}
+</div>
+{% endmacro %}
