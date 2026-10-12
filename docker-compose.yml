@@ -1,0 +1,33 @@
+# 个人笔记 —— 本地/单机容器编排
+#
+#   docker compose up -d --build      构建并后台启动
+#   docker compose logs -f web        看日志
+#   docker compose down               停止（数据卷保留）
+#
+# 访问：http://127.0.0.1:8000
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        # 换源构建：docker compose build --build-arg PIP_INDEX_URL=https://pypi.org/simple
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}
+    image: personal-note:local
+    container_name: personal-note
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      # 留空则由应用在 instance/ 数据卷内自动生成并持久化；
+      # 想自己管理密钥就设成 32 位以上随机串：set NOTES_SECRET_KEY=xxx
+      NOTES_SECRET_KEY: ${NOTES_SECRET_KEY:-}
+      TZ: Asia/Shanghai
+    volumes:
+      # 数据库（含会话密钥）与用户上传的图片，必须持久化
+      - notes_instance:/app/instance
+      - notes_uploads:/app/app/static/uploads
+    restart: unless-stopped
+
+volumes:
+  notes_instance:
+  notes_uploads:

@@ -103,4 +103,14 @@ def create_app(config_overrides=None):
         db.create_all()
         print("数据库已就绪：instance/notes.db")
 
+    @app.cli.command("seed-demo")
+    def seed_demo():
+        """写入演示数据（幂等，可重复执行）。容器内用法：
+        docker compose exec web flask --app wsgi seed-demo
+        """
+        from app.demo import seed_demo_data
+
+        db.create_all()
+        print(f"演示数据已就绪（本次新增 {seed_demo_data()} 条笔记）")
+
     return app

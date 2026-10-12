@@ -75,14 +75,80 @@ trusted-host = pypi.tuna.tsinghua.edu.cn
 
 覆盖：注册登录、越权（一律 404）、草稿/发布、分享与密码解锁与撤销、评论权限、收藏幂等、标签与搜索、上传白名单与体积、CSRF、Markdown XSS 消毒、统一中文错误信封、页面结构与无障碍规则。
 
+## 容器化部署（Docker / WSL2）
+
+前置：Docker Desktop（本机已装：引擎 29.8.0，WSL2 后端，Compose v5.5.1）。
+
+```powershell
+docker compose up -d --build      # 构建并后台启动
+docker compose logs -f web        # 查看日志
+docker compose down               # 停止（数据卷保留）
+```
+
+访问 <http://127.0.0.1:8000>。容器内 gunicorn 监听 8000，想换宿主机端口用 `APP_PORT=5000 docker compose up -d`。
+
+### 关于镜像源（本机实测结论）
+
+Docker Hub 直连在本机**不可用**（`registry-1.docker.io:443` 连接超时），所以：
+
+- `Dockerfile` 的基础镜像写作 `docker.m.daocloud.io/library/python:3.12-slim`，已实测可拉取、可运行；
+- 若你的网络能直连 Docker Hub，把那一行换成 `FROM python:3.12-slim` 即可；
+- 想让**默认写法**（如 `docker pull python:3.12-slim`）也能通，在 Docker Desktop → Settings → Docker Engine 里加：
+
+```json
+{
+  "registry-mirrors": ["https://docker.m.daocloud.io"]
+}
+```
+
+保存后引擎会自动重启。第三方镜像源存在供应链风险，请自行评估；阿里云 ACR 专属加速器（形如 `xxx.mirror.aliyuncs.com`）更可信，但需要你的账号在控制台获取地址。
+
+构建时的 pip 源默认走清华镜像，可覆盖：
+`docker compose build --build-arg PIP_INDEX_URL=https://pypi.org/simple`
+
+### 数据持久化
+
+两个命名卷，容器重建不丢数据：
+
+| 卷 | 容器内挂载点 | 内容 |
+|---|---|---|
+| `notes_instance` | `/app/instance` | SQLite 数据库 `notes.db` + 自动生成的会话密钥 `secret_key` |
+| `notes_uploads` | `/app/app/static/uploads` | 用户上传的图片 |
+
+备份与恢复（卷名前缀为 compose 项目名，即目录名 `personal_node`，可用 `docker volume ls` 核对）：
+
+```powershell
+docker run --rm -v personal_node_notes_instance:/data -v "${PWD}:/backup" alpine tar czf /backup/notes-backup.tar.gz -C /data .
+docker run --rm -v personal_node_notes_instance:/data -v "${PWD}:/backup" alpine sh -c "rm -rf /data/* && tar xzf /backup/notes-backup.tar.gz -C /data"
+```
+
+### 在容器里写演示数据
+
+```powershell
+docker compose exec web flask --app wsgi seed-demo
+```
+
+### 生产注意事项
+
+- 容器内跑的是 gunicorn（不是 Flask 开发服务器），没有开 debug；
+- **刻意用单进程多线程**（`-w 1 --threads 8`）：SQLite 是多进程并发写会 `database is locked`，要横向扩容请先迁移到 PostgreSQL；
+- `NOTES_SECRET_KEY` 留空时由应用在数据卷内生成并持久化；多副本部署必须显式设置同一个值，否则各副本之间会话不互通；
+- HTTPS、反向代理、定时备份不在本期范围。
+
 ## 目录结构
 
 ```
-run.py                  入口（--demo 写演示数据）
+run.py                  本地开发入口（--demo 写演示数据）
+wsgi.py                 容器入口（gunicorn wsgi:app）
 config.py               配置：密钥、SQLite、上传限制、CSRF 开关
-start.bat               一键启动
+start.bat               一键启动（Windows 本地）
+Dockerfile              容器镜像：python:3.12-slim + gunicorn + 非 root
+docker-compose.yml      单机编排：端口、环境变量、两个数据卷
+.dockerignore           构建上下文排除（.venv / instance / uploads / 源素材 / tests）
+requirements.txt        运行依赖（锁定）
+requirements-prod.txt   上者 + gunicorn（容器用）
 app/
-  __init__.py           应用工厂
+  __init__.py           应用工厂（含 init-db / seed-demo 两个 CLI 命令）
   models.py             7 张表
   demo.py               演示数据
   blueprints/           main / auth / notes / share / user
